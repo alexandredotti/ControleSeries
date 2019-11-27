@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout-padrao}">
+<head>
+</head>
+<body>
+	<section layout:fragment="conteudo">
+		<div class="page-header">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-xs-8">
+						<h2>Lista de Series</h2>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-4">
+						<a class="btn btn-primary" data-toggle="modal" 
+							data-target="#modal-form"> 
+							<i class="fa fa-plus-square"></i> Novo Registro
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="container-fluid">
+			<div class="table-responsive">
+				<table id="tabela"
+					class="table  table-striped  table-bordered  table-hover  table-condensed">
+					<thead class="ut-table-header-solid">
+						<tr>
+							<th>Código</th>
+							<th>Nome</th>
+							<th>Ações</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:id="'row_' + ${entity.id}" th:each="entity: ${list}">
+							<td style="width:150px" class="text-center" th:text="${entity.id}">0</td>
+							<td><a th:href="'javascript:edit('+ ${entity.id} + ');'"
+								th:text="${entity.nome}">...</a></td>
+
+							<td style="width:200px" class="text-center">
+								<a 
+th:href="'javascript:edit('+ ${entity.id} + ');'"
+									class="btn btn-primary btn-xs"> <i class="fa fa-edit"></i>
+								</a> &nbsp;
+								<a th:href="'javascript:remove(' + ${entity.id} + ');'"
+									class="btn btn-danger btn-xs"><i class="fa fa-trash"></i></a>
+									
+								<a th:href="@{/watch/add/{id}(id=${entity.id})}"
+									class="btn btn-dark">
+									<i class="fa fa-plus"></i> Watch
+								</a>	
+									
+							</td>
+						</tr>
+						<tr th:if="${list.empty}">
+							<td colspan="3">Nenhum registro encontrado.</td>
+						</tr>
+					</tbody>
+				</table>
+				<nav aria-label="Page navigation example">
+					<ul class="pagination" th:if="${list.totalPages > 0}" >
+						<li class="page-item" 
+							th:classappend="${pageNumber==list.number + 1} ? active" 
+							th:each="pageNumber : ${pageNumbers}">
+					    	<a class="page-link" 
+					    	    th:href="@{/serie(size=${list.size}, page=${pageNumber})}"
+					        	th:text="${pageNumber}"></a>
+				        </li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+		
+		<!-- INICIO MODAL -->
+		<div class="modal modal-form" th:id="modal-form">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h3 id="delModalLabel">Série</h3>
+						<button type="button" class="close" data-dismiss="modal"
+							aria-hidden="true">×</button>
+					</div>
+					<form id="frm" name="frm" method="POST" 
+							class="form-vertical" th:action="@{/serie}"
+							enctype="multipart/form-data"
+							data-parsley-validate="parsley"
+							>
+						<div class="modal-body">
+							<input type="hidden" id="id" name="id" />
+							<div class="form-group">
+								<label for="nome">Nome</label> 
+								<input type="text" class="form-control" 
+									id="nome" name="nome"
+									data-parsley-required 
+									data-parsley-error-message="O Nome é obrigatório." />
+							</div>
+							<div class="form-group">
+								<label for="dataEstreia">Estréia</label> 
+								<input type="text" 
+									class="datepicker form-control" 
+									id="dataEstreia" name="dataEstreia"
+									data-parsley-required />
+							</div>
+							<div class="form-group">
+								<label for="dataEncerramento">Fim</label> 
+								<input type="text" 
+									class="datepicker form-control" 
+									id="dataEncerramento" name="dataEncerramento" />
+							</div>
+							
+							<div class="form-group">
+								<label for="nota">Nota</label> 
+								<input type="text" class="form-control" id="nota" name="nota" 
+									data-parsley-required 
+									data-parsley-range="[1, 100]"
+									data-parsley-type="number" />
+							</div>
+							
+							<div class="form-group">
+								<label for="genero">Gênero</label> 
+								<select id="genero" name="genero" class="form-control"
+									data-parsley-required >
+									<option value=""> (selecione) </option>
+									<option th:each="genero: ${generos}" 
+										th:value="${genero.id}"
+										th:text="${genero.nome}"></option>
+								</select>
+							</div>
+							
+							<div class="form-group">
+								<label for="produtora">Produtora</label> 
+								<select id="produtora" name="produtora" class="form-control"
+									data-parsley-required >
+									<option value=""> (selecione) </option>
+									<option th:each="produtora: ${produtoras}" 
+										th:value="${produtora.id}"
+										th:text="${produtora.nome}"></option>
+								</select>
+							</div>
+							
+							<div class="form-group">
+								<label for="resumo">Resumo</label> 
+								<textarea class="form-control" 
+									id="resumo" name="resumo" cols="5" rows="5"
+									data-parsley-required ></textarea>
+							</div>
+							
+							<div class="form-group">
+								<label for="anexo">Anexo (uma imagem apenas)</label> 
+								<input type="file" name="anexo" id="anexo" 
+								  class="form-control"
+								  data-parsley-required />
+							</div>
+							
+							<div class="form-group">
+								<label for="anexos">Anexo (várias imagens)</label> 
+								<input type="file" name="anexos" id="anexos" 
+								  class="form-control"
+								  multiple 
+								  data-parsley-required />
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+							<button type="submit" class="btn btn-success">Salvar</button>
+						</div>
+					</form>
+				</div>
+				<!-- /.modal-content -->
+			</div>
+			<!-- /.modal-dialog -->
+		</div>
+	</section>
+	<th:block layout:fragment="script">
+		<script type="text/javascript" th:src="@{/js/crud-serie.js}">
+		</script>
+	</th:block>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
